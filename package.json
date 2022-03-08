@@ -1,0 +1,21 @@
+{
+  "name": "discord-faucet-bot",
+  "version": "0.0.1",
+  "main": "src/bot.js",
+  "repository": "https://github.com/avneesh0612/discord-faucet-bot",
+  "author": "Kira272921",
+  "license": "MIT",
+  "scripts": {
+    "start": "node src/bot.js",
+    "dev": "nodemon src/bot.js"
+  },
+  "dependencies": {
+    "discord.js": "^13.6.0",
+    "dotenv": "^16.0.0",
+    "ethers": "^5.5.4",
+    "mongoose": "^6.2.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}

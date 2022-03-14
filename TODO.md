@@ -1,3 +1,3 @@
 ## TODO
 
-- [ ] Migrate to slash commands
+- [ ] Complete the token transfer script thingy

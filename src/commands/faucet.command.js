@@ -12,7 +12,6 @@ module.exports = new Command({
   description: "Faucet huh.",
 
   async run(msg, args) {
-    console.log(args);
     const addressTo = args[1];
     const network = args[2];
 
@@ -40,7 +39,6 @@ module.exports = new Command({
           return 80001;
         }
       };
-      console.log(chainId());
 
       const txUrlStart = () => {
         if (network === "rinkeby") {

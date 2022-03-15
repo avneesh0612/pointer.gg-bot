@@ -1,7 +1,7 @@
 const constants = {
   commandDirectory: "./src/commands",
   eventDirectory: "./src/events",
-  prefix: "-"
+  prefix: "-",
 };
 
 module.exports = constants;

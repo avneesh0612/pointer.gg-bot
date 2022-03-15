@@ -1,6 +1,6 @@
 const network = new Map([
   ["matic", "mumbai"],
-  ["eth", "rinkeby"]
-])
+  ["eth", "rinkeby"],
+]);
 
-module.exports = network
+module.exports = network;

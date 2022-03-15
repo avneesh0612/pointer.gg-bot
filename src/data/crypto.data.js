@@ -1,6 +1,3 @@
-const crypto = [
-  "matic",
-  "eth"
-]
+const crypto = ["matic", "eth"];
 
-module.exports = crypto
+module.exports = crypto;

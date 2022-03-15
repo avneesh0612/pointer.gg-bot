@@ -1,6 +1,10 @@
 const Command = require("../structures/command.structure.js");
 const ethers = require("ethers");
 const dotenv = require("dotenv");
+const Discord = require("discord.js");
+const networkData = require("../data/network.data.js");
+
+const theme = require("../data/theme.data");
 dotenv.config();
 
 const privateKey = process.env.PRIVATE_KEY.toString("hex");
@@ -12,8 +16,56 @@ module.exports = new Command({
   description: "Faucet huh.",
 
   async run(msg, args) {
-    const addressTo = args[1];
-    const network = args[2];
+    if (args.length < 3) {
+      const embed = new Discord.MessageEmbed()
+        .setColor(theme["error"])
+        .setDescription(
+          `Hey! The command argument syntax is a bit wrong. Here is the correct argument syntax for this command \`-faucet <your-address> <network-name>\`.\nFor example: \`-faucet 0x6bF08768995E7430184a48e96940B83C15c1653f mumbai\``
+        );
+
+      msg.reply({ embeds: [embed] });
+    } else if (args.length > 3) {
+      const embed = new Discord.MessageEmbed()
+        .setColor(theme["error"])
+        .setDescription(
+          `Hey! The command argument syntax is a bit wrong. Here is the correct argument syntax for this command \`-faucet <your-address> <network-name>\`.\nFor example: \`-faucet 0x6bF08768995E7430184a48e96940B83C15c1653f mumbai\``
+        );
+
+      msg.reply({ embeds: [embed] });
+    } else {
+      let addressArg = args[1]?.toLowerCase();
+      let networkArg = args[2]?.toLowerCase();
+
+      if (!addressArg) {
+        const embed = new Discord.MessageEmbed()
+          .setColor(theme["error"])
+          .setDescription(
+            `Hey! The command argument syntax is a bit wrong. Here is the correct argument syntax for this command \`-faucet <your-address> <network-name>\`.\nFor example: \`-faucet 0x6bF08768995E7430184a48e96940B83C15c1653f mumbai\``
+          );
+
+        msg.reply({ embeds: [embed] });
+      } else if (!networkArg) {
+        const embed = new Discord.MessageEmbed()
+          .setColor(theme["error"])
+          .setDescription(
+            `Hey! The command argument syntax is a bit wrong. Here is the correct argument syntax for this command \`-faucet <your-address> <network-name>\`.\nFor example: \`-faucet 0x6bF08768995E7430184a48e96940B83C15c1653f mumbai\``
+          );
+
+        msg.reply({ embeds: [embed] });
+      } else {
+        if (!networkData.includes(networkArg)) {
+          const embed = new Discord.MessageEmbed()
+            .setColor(theme["error"])
+            .setDescription(
+              `We currently don't support \`${networkArg}\` network`
+            );
+          msg.reply({ embeds: [embed] });
+        }
+      }
+    }
+
+    const addressTo = args[1]?.toLowerCase();
+    const network = args[2]?.toLowerCase();
 
     const address = wallet.address;
 
@@ -70,10 +122,20 @@ module.exports = new Command({
 
       const txHash = ethers.utils.keccak256(signedTx);
       console.log("Precomputed txHash:", txHash);
-      await msg.reply(`${txUrlStart()}/${txHash}`);
+
+      const embed = new Discord.MessageEmbed()
+        .setColor(theme["success"])
+        .setDescription(
+          `Hey! ${
+            network === "rinkeby" ? "0.01 eth" : "1 matic"
+          } has been sent to your account. You can view the transaction on [${
+            network === "rinkeby" ? "EtherScan" : "PolygonScan"
+          }](${txUrlStart()}/${txHash})`
+        );
+
+      await msg.reply({ embeds: [embed] });
       httpsProvider.sendTransaction(signedTx).then(console.log);
     };
-
     init();
   },
 });

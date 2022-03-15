@@ -5,13 +5,21 @@
  * @param {Client} client
  */
 
-function RunFunction(msg, args, client) { }
+function RunFunction() {}
 
 class Command {
-  name;
-  aliases;
-  description;
-  run;
+  name() {
+    return "";
+  }
+  aliases() {
+    return [];
+  }
+  description() {
+    return "";
+  }
+  run(msg, args, client) {
+    RunFunction(msg, args, client);
+  }
 
   constructor(options) {
     this.name = options.name;

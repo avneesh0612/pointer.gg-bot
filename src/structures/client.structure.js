@@ -1,11 +1,10 @@
 const { Intents, Collection } = require("discord.js");
 const Discord = require("discord.js");
-const Command = require("./command.structure.js");
 
 const intents = new Intents(32767);
 
 class Client extends Discord.Client {
-  constructor(options) {
+  constructor() {
     super({ intents });
     /**
      * @type {Discord.Collection<string, Command>}

@@ -1,6 +1,3 @@
-const network = new Map([
-  ["matic", "mumbai"],
-  ["eth", "rinkeby"],
-]);
+const network = ["mumbai", "rinkeby"];
 
 module.exports = network;

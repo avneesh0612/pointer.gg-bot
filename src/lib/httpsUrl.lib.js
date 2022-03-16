@@ -6,4 +6,4 @@ const httpsUrl = (network) => {
   }
 };
 
-module.exports = httpsUrl
+module.exports = httpsUrl;

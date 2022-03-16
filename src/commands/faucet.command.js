@@ -2,7 +2,7 @@ const Discord = require("discord.js");
 const ethers = require("ethers");
 const dotenv = require("dotenv");
 const Command = require("../structures/command.structure.js");
-const errorEmbed = require("../lib/errorEmbed.lib.js")
+const errorEmbed = require("../lib/errorEmbed.lib.js");
 const httpsUrl = require("../lib/httpsUrl.lib.js");
 const chainId = require("../lib/chainId.lib.js");
 const txUrlStart = require("../lib/txUrlStart.lib.js");
@@ -41,8 +41,7 @@ module.exports = new Command({
               `We currently don't support \`${networkArg}\` network`
             );
           msg.reply({ embeds: [embed] });
-        }
-        else {
+        } else {
           const addressTo = args[1]?.toLowerCase();
           const network = args[2]?.toLowerCase();
 
@@ -51,14 +50,11 @@ module.exports = new Command({
           httpsUrl();
 
           const init = async function () {
-            const httpsProvider = new ethers.getDefaultProvider(httpsUrl(network));
+            const httpsProvider = new ethers.getDefaultProvider(
+              httpsUrl(network)
+            );
             let nonce = await httpsProvider.getTransactionCount(address);
             let feeData = await httpsProvider.getFeeData();
-
-            chainId(network)
-            txUrlStart(network)
-            amount(network)
-
 
             const tx = {
               type: 2,
@@ -79,8 +75,10 @@ module.exports = new Command({
             const embed = new Discord.MessageEmbed()
               .setColor(theme["success"])
               .setDescription(
-                `Hey! ${network === "rinkeby" ? "0.1 ETH" : "1 MATIC"
-                } has been sent to your account. You can view the transaction on [${network === "rinkeby" ? "EtherScan" : "PolygonScan"
+                `Hey! ${
+                  network === "rinkeby" ? "0.1 ETH" : "1 MATIC"
+                } has been sent to your account. You can view the transaction on [${
+                  network === "rinkeby" ? "EtherScan" : "PolygonScan"
                 }](${txUrlStart(network)}/${txHash})`
               );
 

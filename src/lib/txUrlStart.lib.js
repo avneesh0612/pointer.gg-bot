@@ -8,4 +8,4 @@ const txUrlStart = (network) => {
   }
 };
 
-module.exports = txUrlStart
+module.exports = txUrlStart;

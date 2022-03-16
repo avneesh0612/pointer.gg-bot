@@ -8,4 +8,4 @@ const amount = (network) => {
   }
 };
 
-module.exports = amount
+module.exports = amount;

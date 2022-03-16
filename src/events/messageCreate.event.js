@@ -7,7 +7,7 @@ module.exports = {
   run(msg) {
     if (!msg.content.startsWith(PREFIX)) return;
     let content = msg.content.toLowerCase();
-    const args = content.slice(PREFIX.length).trim().split(/ -/g);
+    const args = content.slice(PREFIX.length).trim().split(/ +/g);
 
     if (args[0] == "") return;
 

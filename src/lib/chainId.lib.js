@@ -8,4 +8,4 @@ const chainId = (network) => {
   }
 };
 
-module.exports = chainId
+module.exports = chainId;

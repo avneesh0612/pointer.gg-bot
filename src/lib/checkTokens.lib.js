@@ -8,33 +8,30 @@ const {
 
 dotenv.config();
 
-let responseData;
-
 const checkTokens = async (address, network) => {
   if (networks.includes(network)) {
-    await axios
-      .get(
-        `${networkAddressApiUrl.get(network)}&address=${address}&apiKey=${network === "rinkeby"
-          ? process.env.RINKEBY_API_KEY
-          : process.env.POLYGON_API_KEY
+    try {
+      const res = await axios.get(
+        `${networkAddressApiUrl.get(network)}&address=${address}&apiKey=${
+          network === "rinkeby"
+            ? process.env.RINKEBY_API_KEY
+            : process.env.POLYGON_API_KEY
         }`
-      )
-      .then((res) => {
-        responseData = res.data;
-      });
+      );
+
+      if (Number(res.data.result) / 1e18 > networkAmount.get(network) * 2) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
+  } else {
+    console.log(`${network} not there in networks`);
+    return false;
   }
 };
-
-checkTokens("0x6bF08768995E7430184a48e96940B83C15c1653f", "mumbai");
-
-const anotherFunction = async (network) => {
-  Number(responseData?.result && responseData.result) / 1e18 >
-    networkAmount.get(network) * 2
-    ? (boolean = true)
-    : (boolean = false);
-  return boolean;
-};
-
-console.log(anotherFunction("mumbai"));
 
 module.exports = checkTokens;

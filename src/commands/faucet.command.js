@@ -93,6 +93,7 @@ module.exports = new Command({
               /**
                * @docs `checkTokens` check whether the user has enough tokens to pay the gas fees or not. If the user doesn't have enough tokens, then the tokens would be transferred and increment the network's request in the database.
               */
+             console.log(checkTokens(addressTo, network));
               if (checkTokens(addressTo, network) === true) {
                 const embed = new Discord.MessageEmbed()
                   .setColor(theme["error"])

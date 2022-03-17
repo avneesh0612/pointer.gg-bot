@@ -1,17 +1,23 @@
-const network = ["mumbai", "rinkeby"];
+const networks = ["polygon", "rinkeby"];
 
 const txUrl = new Map([
-  ["mumbai", "https://mumbai.polygonscan.com/tx"],
+  ["polygon", "https://mumbai.polygonscan.com/tx"],
   ["rinkeby", "https://rinkeby.etherscan.io/tx"],
 ]);
 
 const networkAmount = new Map([
-  ["mumbai", "1"],
+  ["polygon", "1"],
   ["rinkeby", "0.1"],
 ]);
 
+const networkAddressApiUrl = new Map([
+  ["polygon", "https://api-testnet.polygonscan.com/api?module=account&action=balance"],
+  ["rinkeby", "https://api-rinkeby.etherscan.io/api?module=account&action=balance"]
+])
+
 module.exports = {
-  network,
+  networks,
   txUrl,
   networkAmount,
+  networkAddressApiUrl
 };

@@ -11,7 +11,7 @@ const txUrlStart = require("../lib/txUrlStart.lib.js");
 const amount = require("../lib/amount.lib.js");
 const checkTokens = require("../lib/checkTokens.lib.js");
 const errorEmbed = require("../lib/errorEmbed.lib.js");
-const { networks } = require("../data/network.data.js");
+const { networks, networkReqs } = require("../data/network.data.js");
 const theme = require("../data/theme.data.js");
 
 dotenv.config();
@@ -110,7 +110,7 @@ module.exports = new Command({
 
                   // The faucet discord bot currently only provides a limit of 3 faucet requests per user.
 
-                  if (networkRequests[`${network}Reqs`] >= 3) {
+                  if (networkRequests[`${network}Reqs`] >= networkReqs) {
                     const embed = new Discord.MessageEmbed()
                       .setColor(theme["error"])
                       .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
@@ -128,33 +128,45 @@ module.exports = new Command({
 
                     msg.reply({ embeds: [priorEmbed] });
 
-                    const signedTx = await wallet.signTransaction(tx);
+                    try {
+                      const signedTx = await wallet.signTransaction(tx);
 
-                    const txHash = ethers.utils.keccak256(signedTx);
-                    console.log("Precomputed txHash:", txHash);
+                      const txHash = ethers.utils.keccak256(signedTx);
+                      console.log("Precomputed txHash:", txHash);
 
-                    httpsProvider.sendTransaction(signedTx).then(console.log);
+                      httpsProvider.sendTransaction(signedTx).then(console.log);
 
-                    const embed = new Discord.MessageEmbed()
-                      .setColor(theme["success"])
-                      .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
-                      .setDescription(`Hey! ${network === "rinkeby" ? "0.1 ETH" : "1 MATIC"} has been sent to your account. You can view the transaction on [${network === "rinkeby" ? "EtherScan" : "PolygonScan"}](${txUrlStart(network)}/${txHash})`)
+                      const embed = new Discord.MessageEmbed()
+                        .setColor(theme["success"])
+                        .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
+                        .setDescription(`Hey! ${network === "rinkeby" ? "0.1 ETH" : "1 MATIC"} has been sent to your account. You can view the transaction on [${network === "rinkeby" ? "EtherScan" : "PolygonScan"}](${txUrlStart(network)}/${txHash})`)
 
-                    await msg.reply({ embeds: [embed] });
+                      await msg.reply({ embeds: [embed] });
 
-                    //  At the end of each successful, we would increment the value of the that network's request in the database.
+                      //  At the end of each successful, we would increment the value of the that network's request in the database
 
-                    User.findOneAndUpdate({ id: msg.author.id }, { $inc: { [`${network}Reqs`]: "1" } }, (err) => {
-                      if (err) {
-                        console.log(err);
-                        const errorEmbed = new Discord.MessageEmbed()
-                          .setColor(theme["error"])
-                          .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
-                          .setDescription(`Something went wrong.\n\n \`\`\`${err}\`\`\``)
+                      User.findOneAndUpdate({ id: msg.author.id }, { $inc: { [`${network}Reqs`]: "1" } }, (err) => {
+                        if (err) {
+                          console.log(err);
+                          const errorEmbed = new Discord.MessageEmbed()
+                            .setColor(theme["error"])
+                            .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
+                            .setDescription(`Something went wrong.\n\n \`\`\`${err}\`\`\``)
 
-                        msg.reply({ embeds: [errorEmbed] });
-                      }
-                    })
+                          msg.reply({ embeds: [errorEmbed] });
+                        }
+                      })
+                    }
+                    catch (err) {
+                      console.log(err)
+                      const embed = new Discord.MessageEmbed()
+                        .setColor(theme["error"])
+                        .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
+                        .setDescription(`There was an error while sending the transaction.`)
+
+                      msg.reply({ embeds: [embed] })
+                      return
+                    }
                   }
                 }
               } else {
@@ -169,7 +181,7 @@ module.exports = new Command({
                 else {
                   const networkRequests = await User.findOne({ id: msg.author.id })
 
-                  if (networkRequests[`${network}Reqs`] >= 3) {
+                  if (networkRequests[`${network}Reqs`] >= networkReqs) {
                     const embed = new Discord.MessageEmbed()
                       .setColor(theme["error"])
                       .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
@@ -187,33 +199,45 @@ module.exports = new Command({
 
                     msg.reply({ embeds: [priorEmbed] });
 
-                    const signedTx = await wallet.signTransaction(tx);
+                    try {
+                      const signedTx = await wallet.signTransaction(tx);
 
-                    const txHash = ethers.utils.keccak256(signedTx);
-                    console.log("Precomputed txHash:", txHash);
+                      const txHash = ethers.utils.keccak256(signedTx);
+                      console.log("Precomputed txHash:", txHash);
 
-                    httpsProvider.sendTransaction(signedTx).then(console.log);
+                      httpsProvider.sendTransaction(signedTx).then(console.log);
 
-                    const embed = new Discord.MessageEmbed()
-                      .setColor(theme["success"])
-                      .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
-                      .setDescription(`Hey! ${network === "rinkeby" ? "0.1 ETH" : "1 MATIC"} has been sent to your account. You can view the transaction on [${network === "rinkeby" ? "EtherScan" : "PolygonScan"}](${txUrlStart(network)}/${txHash})`)
+                      const embed = new Discord.MessageEmbed()
+                        .setColor(theme["success"])
+                        .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
+                        .setDescription(`Hey! ${network === "rinkeby" ? "0.1 ETH" : "1 MATIC"} has been sent to your account. You can view the transaction on [${network === "rinkeby" ? "EtherScan" : "PolygonScan"}](${txUrlStart(network)}/${txHash})`)
 
-                    await msg.reply({ embeds: [embed] });
+                      await msg.reply({ embeds: [embed] });
 
-                    // At the end of each successful, we would increment the value of the that network's request in the database.
+                      // At the end of each successful, we would increment the value of the that network's request in the database.
 
-                    User.findOneAndUpdate({ id: msg.author.id }, { $inc: { [`${network}Reqs`]: 1 } }, (err) => {
-                      if (err) {
-                        console.log(err);
-                        const errorEmbed = new Discord.MessageEmbed()
-                          .setColor(theme["error"])
-                          .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
-                          .setDescription(`Something went wrong.\n\n${err}`)
+                      User.findOneAndUpdate({ id: msg.author.id }, { $inc: { [`${network}Reqs`]: 1 } }, (err) => {
+                        if (err) {
+                          console.log(err);
+                          const errorEmbed = new Discord.MessageEmbed()
+                            .setColor(theme["error"])
+                            .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
+                            .setDescription(`Something went wrong.\n\n${err}`)
 
-                        msg.reply({ embeds: [errorEmbed] });
-                      }
-                    })
+                          msg.reply({ embeds: [errorEmbed] });
+                        }
+                      })
+                    }
+                    catch (err) {
+                      console.log(err)
+
+                      const embed = new Discord.MessageEmbed()
+                        .setColor(theme["error"])
+                        .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
+                        .setDescription(`There was an error while sending the transaction.`)
+
+                      msg.reply({ embeds: [embed] })
+                    }
                   }
                 }
               }

@@ -23,10 +23,21 @@ const networkAddressApiUrl = new Map([
   ["rinkeby", "https://api-rinkeby.etherscan.io/api?module=account&action=balance"]
 ])
 
+// The amount of requests a user can make using the faucet bot lifetime
+const networkReqs = 3;
+
+// Emojis related to the network 👀
+const networkEmojis = new Map([
+  ["polygon", "💜"],
+  ["rinkeby", "💛"],
+])
+
 module.exports = {
   networks,
   txUrl,
   networkAmount,
   networkAddressUrl,
-  networkAddressApiUrl
+  networkAddressApiUrl,
+  networkReqs,
+  networkEmojis
 };

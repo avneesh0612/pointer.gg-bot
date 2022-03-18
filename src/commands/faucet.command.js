@@ -22,7 +22,7 @@ const wallet = new ethers.Wallet(privateKey);
 module.exports = new Command({
   name: "faucet",
   aliases: [],
-  description: "Faucet command",
+  description: "🧱 Get testnet tokens by using faucet command.",
 
   async run(msg, args) {
     // Checking whether the command's argument syntax is proper or not
@@ -43,6 +43,7 @@ module.exports = new Command({
         if (!networks.includes(networkArg)) {
           const embed = new Discord.MessageEmbed()
             .setColor(theme["error"])
+            .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
             .setDescription(
               `We currently don't support \`${networkArg}\` network`
             );
@@ -55,6 +56,7 @@ module.exports = new Command({
           if (!ethers.utils.isAddress(addressTo)) {
             const embed = new Discord.MessageEmbed()
               .setColor(theme["error"])
+              .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
               .setDescription(`The address argument isn't a valid address`);
 
             msg.reply({ embeds: [embed] });
@@ -98,6 +100,7 @@ module.exports = new Command({
                 if (checkTokens(addressTo, network) === true) {
                   const embed = new Discord.MessageEmbed()
                     .setColor(theme["error"])
+                    .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
                     .setDescription(`You already have enough tokens to pay the gas fees.`)
 
                   msg.reply({ embeds: [embed] });
@@ -110,6 +113,7 @@ module.exports = new Command({
                   if (networkRequests[`${network}Reqs`] >= 3) {
                     const embed = new Discord.MessageEmbed()
                       .setColor(theme["error"])
+                      .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
                       .setDescription(`You have reached the maximum amount of requests.`)
 
                     msg.reply({ embeds: [embed] });
@@ -119,6 +123,7 @@ module.exports = new Command({
 
                     const priorEmbed = new Discord.MessageEmbed()
                       .setColor(theme["success"])
+                      .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
                       .setDescription(`Made a request to the faucet. Check the link to confirm whether the token has been successfully transferred or not.`)
 
                     msg.reply({ embeds: [priorEmbed] });
@@ -132,6 +137,7 @@ module.exports = new Command({
 
                     const embed = new Discord.MessageEmbed()
                       .setColor(theme["success"])
+                      .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
                       .setDescription(`Hey! ${network === "rinkeby" ? "0.1 ETH" : "1 MATIC"} has been sent to your account. You can view the transaction on [${network === "rinkeby" ? "EtherScan" : "PolygonScan"}](${txUrlStart(network)}/${txHash})`)
 
                     await msg.reply({ embeds: [embed] });
@@ -143,6 +149,7 @@ module.exports = new Command({
                         console.log(err);
                         const errorEmbed = new Discord.MessageEmbed()
                           .setColor(theme["error"])
+                          .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
                           .setDescription(`Something went wrong.\n\n \`\`\`${err}\`\`\``)
 
                         msg.reply({ embeds: [errorEmbed] });
@@ -154,6 +161,7 @@ module.exports = new Command({
                 if (checkTokens(addressTo, network) === true) {
                   const embed = new Discord.MessageEmbed()
                     .setColor(theme["error"])
+                    .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
                     .setDescription(`You already have enough tokens to pay the gas fees.`)
 
                   msg.reply({ embeds: [embed] });
@@ -164,6 +172,7 @@ module.exports = new Command({
                   if (networkRequests[`${network}Reqs`] >= 3) {
                     const embed = new Discord.MessageEmbed()
                       .setColor(theme["error"])
+                      .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
                       .setDescription(`You have reached the maximum amount of requests.`)
 
                     msg.reply({ embeds: [embed] });
@@ -173,6 +182,7 @@ module.exports = new Command({
 
                     const priorEmbed = new Discord.MessageEmbed()
                       .setColor(theme["success"])
+                      .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
                       .setDescription(`Made a request to the faucet. Check the link to confirm whether the token has been successfully transferred or not.`)
 
                     msg.reply({ embeds: [priorEmbed] });
@@ -186,6 +196,7 @@ module.exports = new Command({
 
                     const embed = new Discord.MessageEmbed()
                       .setColor(theme["success"])
+                      .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
                       .setDescription(`Hey! ${network === "rinkeby" ? "0.1 ETH" : "1 MATIC"} has been sent to your account. You can view the transaction on [${network === "rinkeby" ? "EtherScan" : "PolygonScan"}](${txUrlStart(network)}/${txHash})`)
 
                     await msg.reply({ embeds: [embed] });
@@ -197,6 +208,7 @@ module.exports = new Command({
                         console.log(err);
                         const errorEmbed = new Discord.MessageEmbed()
                           .setColor(theme["error"])
+                          .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
                           .setDescription(`Something went wrong.\n\n${err}`)
 
                         msg.reply({ embeds: [errorEmbed] });

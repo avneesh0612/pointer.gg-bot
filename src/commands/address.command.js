@@ -9,7 +9,7 @@ const theme = require("../data/theme.data.js");
 module.exports = new Command({
   name: "address",
   aliases: [],
-  description: "Gives the user profile link on that network",
+  description: "🌈 Gives the user profile link on that network.",
 
   async run(msg, args) {
 
@@ -26,6 +26,7 @@ module.exports = new Command({
       if (!networks.includes(network)) {
         const embed = new Discord.MessageEmbed()
           .setColor(theme["error"])
+          .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
           .setDescription(
             `We currently don't support \`${network}\` network`
           );
@@ -39,6 +40,7 @@ module.exports = new Command({
         else {
           const embed = new Discord.MessageEmbed()
             .setColor(theme["error"])
+            .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
             .setDescription(`The address argument isn't a valid address`);
 
           msg.reply({ embeds: [embed] });

@@ -8,9 +8,10 @@ module.exports = (client) => {
     if (!client.user || !client.application) {
       return;
     }
-
     console.log(`${client.user.username} is online`);
+    client.user.setActivity('developers getting in web3 👀', { type: 'WATCHING' });
   });
+
 
   mongo(process.env.MONGODB_URL);
 

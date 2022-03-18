@@ -5,14 +5,23 @@ const theme = require("../data/theme.data.js");
 module.exports = new Command({
   name: "help",
   aliases: [],
-  description: "Shows detailed information about the bot.",
+  description: "🦄 Shows the list of all the commands.",
 
   async run(msg) {
     const embed = new Discord.MessageEmbed()
       .setColor(theme["blurple"])
+      .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
       .setDescription(
-        `Hey! This is a faucet bot for Pointer.gg. Use the \`-faucet\` command to get funds! The command goes like this- \`-faucet <wallet-address> <network-name>\`.\nFor example: \`-faucet 0x6bF08768995E7430184a48e96940B83C15c1653f polygon\``
+        `Hey 👋! This is the faucet bot for pointer.gg.\n
+        **Commands**:\n`
       );
+
+    msg.client.commands.forEach(command => {
+      embed.addField(
+        `\n\`${process.env.PREFIX}${command.name}\``,
+        `${command.description}`
+      );
+    });
 
     msg.reply({ embeds: [embed] });
   },

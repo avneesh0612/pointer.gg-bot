@@ -1,30 +1,49 @@
 const Discord = require("discord.js");
+const ethers = require('ethers')
 
 const Command = require("../structures/command.structure.js");
-const { networks } = require("../data/network.data.js");
+const errorEmbed = require("../lib/errorEmbed.lib.js")
+const { networks, networkAddressUrl } = require("../data/network.data.js");
 const theme = require("../data/theme.data.js");
 
 module.exports = new Command({
   name: "address",
   aliases: [],
-  description: "shows url from address bruh",
+  description: "Gives the user profile link on that network",
 
   async run(msg, args) {
-    const networkArg = args[1];
-    const address = args[2];
-    console.log(networks);
 
-    if (!networks.includes(networkArg)) {
-      const embed = new Discord.MessageEmbed()
-        .setColor(theme["error"])
-        .setDescription(`We currently don't support \`${networkArg}\` network`);
-      msg.reply({ embeds: [embed] });
+    if (args.length < 3) {
+      msg.reply({ embeds: [errorEmbed('address')] });
     }
+    else if (args.length > 3) {
+      msg.reply({ embeds: [errorEmbed('address')] });
+    }
+    else {
+      const address = args[1].toLowerCase();
+      const network = args[2].toLowerCase();
 
-    if (networkArg === "rinkeby") {
-      msg.reply(`https://rinkeby.etherscan.io/address/${address}`);
-    } else if (networkArg === "polygon") {
-      msg.reply(`https://mumbai.polygonscan.com/address/${address}`);
+      if (!networks.includes(network)) {
+        const embed = new Discord.MessageEmbed()
+          .setColor(theme["error"])
+          .setDescription(
+            `We currently don't support \`${network}\` network`
+          );
+
+        msg.reply({ embeds: [embed] });
+      }
+      else {
+        if (ethers.utils.isAddress(address)) {
+          msg.reply(`${networkAddressUrl.get(network)}/${address}`);
+        }
+        else {
+          const embed = new Discord.MessageEmbed()
+            .setColor(theme["error"])
+            .setDescription(`The address argument isn't a valid address`);
+
+          msg.reply({ embeds: [embed] });
+        }
+      }
     }
-  },
+  }
 });

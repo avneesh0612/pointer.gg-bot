@@ -1,3 +1,4 @@
+// List of all the supported networks for the faucet
 const networks = ["polygon", "rinkeby"];
 
 const txUrl = new Map([
@@ -5,11 +6,18 @@ const txUrl = new Map([
   ["rinkeby", "https://rinkeby.etherscan.io/tx"],
 ]);
 
+// The number of tokens which are to be sent to the user on a specific network
 const networkAmount = new Map([
   ["polygon", "1"],
   ["rinkeby", "0.1"],
 ]);
 
+const networkAddressUrl = new Map([
+  ["polygon", "https://mumbai.polygonscan.com/address"],
+  ["rinkeby", "https://rinkeby.etherscan.io/address"]
+])
+
+// The API url for fetching the number of tokens the user has on a specific network
 const networkAddressApiUrl = new Map([
   ["polygon", "https://api-testnet.polygonscan.com/api?module=account&action=balance"],
   ["rinkeby", "https://api-rinkeby.etherscan.io/api?module=account&action=balance"]
@@ -19,5 +27,6 @@ module.exports = {
   networks,
   txUrl,
   networkAmount,
+  networkAddressUrl,
   networkAddressApiUrl
 };

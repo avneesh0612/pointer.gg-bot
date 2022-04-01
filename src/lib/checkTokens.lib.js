@@ -12,7 +12,7 @@ const checkTokens = async (address, network) => {
       const res = await axios.get(
         `${networkAddressApiUrl.get(network)}&address=${address}&apiKey=${network === "rinkeby"
           ? process.env.RINKEBY_API_KEY
-          : process.env.POLYGON_API_KEY
+          : process.env.MUMBAI_API_KEY
         }`
       );
       if (Number(res.data.result) / 1e18 > networkAmount.get(network) * 2) {

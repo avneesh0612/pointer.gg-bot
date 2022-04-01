@@ -5,7 +5,7 @@ const User = new mongoose.Schema({
     type: String,
     required: true
   },
-  polygonReqs: {
+  mumbaiReqs: {
     type: Number,
     default: 0
   },

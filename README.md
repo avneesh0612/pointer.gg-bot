@@ -14,7 +14,7 @@ This would send 1 MATIC to `0xd24CA0297558f0827e2C467603869D1AC9fF435d` address 
 
 Currently we only support two networks:
 
-- `polygon` - MATIC Mumbai
+- `mumbai` - Polygon Mumbai
 - `rinkeby` - Rinkeby
 
 ## 😿 I am unable to get testnet tokens

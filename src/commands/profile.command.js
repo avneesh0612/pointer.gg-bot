@@ -7,7 +7,7 @@ const { networks, networkAddressUrl } = require("../data/network.data.js");
 const theme = require("../data/theme.data.js");
 
 module.exports = new Command({
-  name: "address",
+  name: "profile",
   aliases: [],
   description: "🌈 Gives the user profile link on that network.",
 

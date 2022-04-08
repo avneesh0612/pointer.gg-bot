@@ -13,6 +13,8 @@ const checkTokens = require("../lib/checkTokens.lib.js");
 const errorEmbed = require("../lib/errorEmbed.lib.js");
 const { networks, networkReqs } = require("../data/network.data.js");
 const theme = require("../data/theme.data.js");
+const constants = require("../data/constants.data.js");
+const Web3 = require("web3");
 
 dotenv.config();
 
@@ -27,23 +29,25 @@ module.exports = new Command({
   async run(msg, args) {
     // Checking whether the command's argument syntax is proper or not
     if (args.length < 3) {
-      msg.reply({ embeds: [errorEmbed('faucet')] });
+      msg.reply({ embeds: [errorEmbed("faucet")] });
     } else if (args.length > 3) {
-      msg.reply({ embeds: [errorEmbed('faucet')] });
+      msg.reply({ embeds: [errorEmbed("faucet")] });
     } else {
       let addressArg = args[1]?.toLowerCase();
       let networkArg = args[2]?.toLowerCase();
 
       if (!addressArg) {
-        msg.reply({ embeds: [errorEmbed('faucet')] });
+        msg.reply({ embeds: [errorEmbed("faucet")] });
       } else if (!networkArg) {
-        msg.reply({ embeds: [errorEmbed('faucet')] });
+        msg.reply({ embeds: [errorEmbed("faucet")] });
       } else {
         // Checking if the network is supported or not
         if (!networks.includes(networkArg)) {
           const embed = new Discord.MessageEmbed()
             .setColor(theme["error"])
-            .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
+            .setFooter({
+              text: constants["footerText"],
+            })
             .setDescription(
               `We currently don't support \`${networkArg}\` network`
             );
@@ -56,12 +60,35 @@ module.exports = new Command({
           if (!ethers.utils.isAddress(addressTo)) {
             const embed = new Discord.MessageEmbed()
               .setColor(theme["error"])
-              .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
+              .setFooter({
+                text: constants["footerText"],
+              })
               .setDescription(`The address argument isn't a valid address`);
 
             msg.reply({ embeds: [embed] });
           }
-          else {
+
+          const httpsUrlWeb3 = httpsUrl(String(networkArg));
+
+          var web3 = new Web3(new Web3.providers.HttpProvider(httpsUrlWeb3));
+
+          const balance = web3.utils.fromWei(
+            await web3.eth.getBalance(constants["fromAddress"]),
+            "ether"
+          );
+
+          if (balance < amount(networkArg)) {
+            const embed = new Discord.MessageEmbed()
+              .setColor(theme["error"])
+              .setFooter({
+                text: constants["footerText"],
+              })
+              .setDescription(
+                `I don't have enough tokens to send you. Please try again later.`
+              );
+
+            msg.reply({ embeds: [embed] });
+          } else {
             const address = wallet.address;
 
             httpsUrl();
@@ -85,11 +112,14 @@ module.exports = new Command({
               };
 
               // 0 means that the user isn't there in the database and 1 means that the user is already there in the database
-              const isInDatabase = await User.countDocuments({ id: msg.author.id }, { limit: 1 })
+              const isInDatabase = await User.countDocuments(
+                { id: msg.author.id },
+                { limit: 1 }
+              );
 
               if (isInDatabase === 0) {
                 const newUser = new User({
-                  id: msg.author.id
+                  id: msg.author.id,
                 });
 
                 await newUser.save();
@@ -100,31 +130,43 @@ module.exports = new Command({
                 if (checkTokens(addressTo, network) === true) {
                   const embed = new Discord.MessageEmbed()
                     .setColor(theme["error"])
-                    .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
-                    .setDescription(`You already have enough tokens to pay the gas fees.`)
+                    .setFooter({
+                      text: constants["footerText"],
+                    })
+                    .setDescription(
+                      `You already have enough tokens to pay the gas fees.`
+                    );
 
                   msg.reply({ embeds: [embed] });
-                }
-                else {
-                  const networkRequests = await User.findOne({ id: msg.author.id })
+                } else {
+                  const networkRequests = await User.findOne({
+                    id: msg.author.id,
+                  });
 
                   // The faucet discord bot currently only provides a limit of 3 faucet requests per user.
 
                   if (networkRequests[`${network}Reqs`] >= networkReqs) {
                     const embed = new Discord.MessageEmbed()
                       .setColor(theme["error"])
-                      .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
-                      .setDescription(`You have reached the maximum amount of requests.`)
+                      .setFooter({
+                        text: constants["footerText"],
+                      })
+                      .setDescription(
+                        `You have reached the maximum amount of requests.`
+                      );
 
                     msg.reply({ embeds: [embed] });
-                  }
-                  else {
+                  } else {
                     // The `priorEmbed` is just the tell the user that the request has been sent to the faucet and the transaction is being processed.
 
                     const priorEmbed = new Discord.MessageEmbed()
                       .setColor(theme["success"])
-                      .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
-                      .setDescription(`Made a request to the faucet. Check the link to confirm whether the token has been successfully transferred or not.`)
+                      .setFooter({
+                        text: constants["footerText"],
+                      })
+                      .setDescription(
+                        `Made a request to the faucet. Check the link to confirm whether the token has been successfully transferred or not.`
+                      );
 
                     msg.reply({ embeds: [priorEmbed] });
 
@@ -138,34 +180,53 @@ module.exports = new Command({
 
                       const embed = new Discord.MessageEmbed()
                         .setColor(theme["success"])
-                        .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
-                        .setDescription(`Hey! ${network === "rinkeby" ? "0.1 ETH" : "1 MATIC"} has been sent to your account. You can view the transaction on [${network === "rinkeby" ? "EtherScan" : "PolygonScan"}](${txUrlStart(network)}/${txHash})`)
+                        .setFooter({
+                          text: constants["footerText"],
+                        })
+                        .setDescription(
+                          `Hey! ${
+                            network === "rinkeby" ? "0.1 ETH" : "1 MATIC"
+                          } has been sent to your account. You can view the transaction on [${
+                            network === "rinkeby" ? "EtherScan" : "PolygonScan"
+                          }](${txUrlStart(network)}/${txHash})`
+                        );
 
                       await msg.reply({ embeds: [embed] });
 
                       //  At the end of each successful, we would increment the value of the that network's request in the database
 
-                      User.findOneAndUpdate({ id: msg.author.id }, { $inc: { [`${network}Reqs`]: "1" } }, (err) => {
-                        if (err) {
-                          console.log(err);
-                          const errorEmbed = new Discord.MessageEmbed()
-                            .setColor(theme["error"])
-                            .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
-                            .setDescription(`Something went wrong.\n\n \`\`\`${err}\`\`\``)
+                      User.findOneAndUpdate(
+                        { id: msg.author.id },
+                        { $inc: { [`${network}Reqs`]: "1" } },
+                        (err) => {
+                          if (err) {
+                            console.log(err);
+                            const errorEmbed = new Discord.MessageEmbed()
+                              .setColor(theme["error"])
+                              .setFooter({
+                                text: constants["footerText"],
+                              })
+                              .setDescription(
+                                `Something went wrong.\n\n \`\`\`${err}\`\`\``
+                              );
 
-                          msg.reply({ embeds: [errorEmbed] });
+                            msg.reply({ embeds: [errorEmbed] });
+                          }
                         }
-                      })
-                    }
-                    catch (err) {
-                      console.log(err)
+                      );
+                    } catch (err) {
+                      console.log(err);
                       const embed = new Discord.MessageEmbed()
                         .setColor(theme["error"])
-                        .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
-                        .setDescription(`There was an error while sending the transaction.`)
+                        .setFooter({
+                          text: constants["footerText"],
+                        })
+                        .setDescription(
+                          `There was an error while sending the transaction.`
+                        );
 
-                      msg.reply({ embeds: [embed] })
-                      return
+                      msg.reply({ embeds: [embed] });
+                      return;
                     }
                   }
                 }
@@ -173,29 +234,41 @@ module.exports = new Command({
                 if (checkTokens(addressTo, network) === true) {
                   const embed = new Discord.MessageEmbed()
                     .setColor(theme["error"])
-                    .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
-                    .setDescription(`You already have enough tokens to pay the gas fees.`)
+                    .setFooter({
+                      text: constants["footerText"],
+                    })
+                    .setDescription(
+                      `You already have enough tokens to pay the gas fees.`
+                    );
 
                   msg.reply({ embeds: [embed] });
-                }
-                else {
-                  const networkRequests = await User.findOne({ id: msg.author.id })
+                } else {
+                  const networkRequests = await User.findOne({
+                    id: msg.author.id,
+                  });
 
                   if (networkRequests[`${network}Reqs`] >= networkReqs) {
                     const embed = new Discord.MessageEmbed()
                       .setColor(theme["error"])
-                      .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
-                      .setDescription(`You have reached the maximum amount of requests.`)
+                      .setFooter({
+                        text: constants["footerText"],
+                      })
+                      .setDescription(
+                        `You have reached the maximum amount of requests.`
+                      );
 
                     msg.reply({ embeds: [embed] });
-                  }
-                  else {
+                  } else {
                     // The `priorEmbed` is just the tell the user that the request has been sent to the faucet and the transaction is being processed.
 
                     const priorEmbed = new Discord.MessageEmbed()
                       .setColor(theme["success"])
-                      .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
-                      .setDescription(`Made a request to the faucet. Check the link to confirm whether the token has been successfully transferred or not.`)
+                      .setFooter({
+                        text: constants["footerText"],
+                      })
+                      .setDescription(
+                        `Made a request to the faucet. Check the link to confirm whether the token has been successfully transferred or not.`
+                      );
 
                     msg.reply({ embeds: [priorEmbed] });
 
@@ -209,39 +282,58 @@ module.exports = new Command({
 
                       const embed = new Discord.MessageEmbed()
                         .setColor(theme["success"])
-                        .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
-                        .setDescription(`Hey! ${network === "rinkeby" ? "0.1 ETH" : "1 MATIC"} has been sent to your account. You can view the transaction on [${network === "rinkeby" ? "EtherScan" : "PolygonScan"}](${txUrlStart(network)}/${txHash})`)
+                        .setFooter({
+                          text: constants["footerText"],
+                        })
+                        .setDescription(
+                          `Hey! ${
+                            network === "rinkeby" ? "0.1 ETH" : "1 MATIC"
+                          } has been sent to your account. You can view the transaction on [${
+                            network === "rinkeby" ? "EtherScan" : "PolygonScan"
+                          }](${txUrlStart(network)}/${txHash})`
+                        );
 
                       await msg.reply({ embeds: [embed] });
 
                       // At the end of each successful, we would increment the value of the that network's request in the database.
 
-                      User.findOneAndUpdate({ id: msg.author.id }, { $inc: { [`${network}Reqs`]: 1 } }, (err) => {
-                        if (err) {
-                          console.log(err);
-                          const errorEmbed = new Discord.MessageEmbed()
-                            .setColor(theme["error"])
-                            .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
-                            .setDescription(`Something went wrong.\n\n${err}`)
+                      User.findOneAndUpdate(
+                        { id: msg.author.id },
+                        { $inc: { [`${network}Reqs`]: 1 } },
+                        (err) => {
+                          if (err) {
+                            console.log(err);
+                            const errorEmbed = new Discord.MessageEmbed()
+                              .setColor(theme["error"])
+                              .setFooter({
+                                text: constants["footerText"],
+                              })
+                              .setDescription(
+                                `Something went wrong.\n\n${err}`
+                              );
 
-                          msg.reply({ embeds: [errorEmbed] });
+                            msg.reply({ embeds: [errorEmbed] });
+                          }
                         }
-                      })
-                    }
-                    catch (err) {
-                      console.log(err)
+                      );
+                    } catch (err) {
+                      console.log(err);
 
                       const embed = new Discord.MessageEmbed()
                         .setColor(theme["error"])
-                        .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
-                        .setDescription(`There was an error while sending the transaction.`)
+                        .setFooter({
+                          text: constants["footerText"],
+                        })
+                        .setDescription(
+                          `There was an error while sending the transaction.`
+                        );
 
-                      msg.reply({ embeds: [embed] })
+                      msg.reply({ embeds: [embed] });
                     }
                   }
                 }
               }
-            }
+            };
             init();
           }
         }

@@ -1,6 +1,7 @@
 const Discord = require("discord.js");
 const Command = require("../structures/command.structure.js");
 const theme = require("../data/theme.data.js");
+const constants = require("../data/constants.data.js");
 
 module.exports = new Command({
   name: "help",
@@ -10,13 +11,13 @@ module.exports = new Command({
   async run(msg) {
     const embed = new Discord.MessageEmbed()
       .setColor(theme["blurple"])
-      .setFooter({ text: 'Made with ❤️ by @Kira.#3246 and @Avneesh#4961' })
+      .setFooter({ text: constants["footerText"] })
       .setDescription(
         `Hey 👋! This is the faucet bot for pointer.gg.\n
         **Commands**:\n`
       );
 
-    msg.client.commands.forEach(command => {
+    msg.client.commands.forEach((command) => {
       embed.addField(
         `\n\`${process.env.PREFIX}${command.name}\``,
         `${command.description}`

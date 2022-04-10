@@ -1,4 +1,3 @@
-const Discord = require("discord.js");
 const ethers = require("ethers");
 const dotenv = require("dotenv");
 const Web3 = require("web3");
@@ -6,15 +5,14 @@ const Web3 = require("web3");
 const Command = require("../structures/command.structure.js");
 const User = require("../models/user.model.js");
 
+const {
+  notSupportedNetworkEmbed, invalidAddressEmbed, insufficientFundsEmbed, maxReqReachedEmbed, madeReqToAlchemyEmbed, sentTokensEmbed, txnErrorEmbed, wrongSyntaxEmbed,
+} = require("../utils/embeds.utils.js");
 const httpsUrl = require("../utils/httpsUrl.utils.js");
 const chainId = require("../utils/chainId.utils.js");
-const txUrlStart = require("../utils/txUrlStart.utils.js");
 const amount = require("../utils/amount.utils.js");
-const checkTokens = require("../utils/checkTokens.utils.js");
-const errorEmbed = require("../utils/errorEmbed.utils.js");
 
 const { networks, networkReqs } = require("../data/network.data.js");
-const theme = require("../data/theme.data.js");
 const constants = require("../data/constants.data.js");
 
 dotenv.config();
@@ -26,51 +24,31 @@ module.exports = new Command({
   name: "faucet",
   aliases: [],
   description: "🧱 Get testnet tokens by using faucet command.",
+  usage: `${process.env.PREFIX}faucet <address> <network>`,
 
   async run(msg, args) {
-    // Checking whether the command's argument syntax is proper or not
     if (args.length < 3) {
-      msg.reply({ embeds: [errorEmbed("faucet")] });
+      msg.reply({ embeds: [wrongSyntaxEmbed("faucet")] });
     } else if (args.length > 3) {
-      msg.reply({ embeds: [errorEmbed("faucet")] });
+      msg.reply({ embeds: [wrongSyntaxEmbed("faucet")] });
     } else {
       let addressArg = args[1]?.toLowerCase();
       let networkArg = args[2]?.toLowerCase();
 
       if (!addressArg) {
-        msg.reply({ embeds: [errorEmbed("faucet")] });
+        msg.reply({ embeds: [wrongSyntaxEmbed("faucet")] });
       } else if (!networkArg) {
-        msg.reply({ embeds: [errorEmbed("faucet")] });
+        msg.reply({ embeds: [wrongSyntaxEmbed("faucet")] });
       } else {
-        // Checking if the network is supported or not
         if (!networks.includes(networkArg)) {
-          const embed = new Discord.MessageEmbed()
-            .setColor(theme["error"])
-            .setFooter({
-              text: constants["footerText"],
-            })
-            .setDescription(
-              `We currently don't support \`${networkArg}\` network`
-            );
-
-          msg.reply({ embeds: [embed] });
+          msg.reply({ embeds: [notSupportedNetworkEmbed(networkArg)] });
         } else {
-          const addressTo = args[1]?.toLowerCase();
-          const network = args[2]?.toLowerCase();
-
-          if (!ethers.utils.isAddress(addressTo)) {
-            const embed = new Discord.MessageEmbed()
-              .setColor(theme["error"])
-              .setFooter({
-                text: constants["footerText"],
-              })
-              .setDescription(`The address argument isn't a valid address`);
-
-            msg.reply({ embeds: [embed] });
+          if (!ethers.utils.isAddress(addressArg)) {
+            msg.reply({ embeds: [invalidAddressEmbed(addressArg)] });
+            return
           }
 
           const httpsUrlWeb3 = httpsUrl(String(networkArg));
-
           var web3 = new Web3(new Web3.providers.HttpProvider(httpsUrlWeb3));
 
           const balance = web3.utils.fromWei(
@@ -79,16 +57,8 @@ module.exports = new Command({
           );
 
           if (balance < amount(networkArg)) {
-            const embed = new Discord.MessageEmbed()
-              .setColor(theme["error"])
-              .setFooter({
-                text: constants["footerText"],
-              })
-              .setDescription(
-                `I don't have enough tokens to send you. Please try again later.`
-              );
-
-            msg.reply({ embeds: [embed] });
+            msg.reply({ embeds: [insufficientFundsEmbed()] });
+            return
           } else {
             const address = wallet.address;
 
@@ -96,7 +66,7 @@ module.exports = new Command({
 
             const init = async function () {
               const httpsProvider = new ethers.getDefaultProvider(
-                httpsUrl(network)
+                httpsUrl(networkArg)
               );
               let nonce = await httpsProvider.getTransactionCount(address);
               let feeData = await httpsProvider.getFeeData();
@@ -104,15 +74,14 @@ module.exports = new Command({
               const tx = {
                 type: 2,
                 nonce: nonce,
-                to: addressTo,
+                to: addressArg,
                 maxPriorityFeePerGas: feeData["maxPriorityFeePerGas"],
                 maxFeePerGas: feeData["maxFeePerGas"],
-                value: ethers.utils.parseEther(amount(network)),
+                value: ethers.utils.parseEther(amount(networkArg)),
                 gasLimit: "21000",
-                chainId: chainId(network),
+                chainId: chainId(networkArg),
               };
 
-              // 0 means that the user isn't there in the database and 1 means that the user is already there in the database
               const isInDatabase = await User.countDocuments(
                 { id: msg.author.id },
                 { limit: 1 }
@@ -124,217 +93,48 @@ module.exports = new Command({
                 });
 
                 await newUser.save();
+              }
 
-                // `checkTokens` check whether the user has enough tokens to pay the gas fees or not. If the user doesn't have enough tokens, then the tokens would be transferred and increment the network's request in the database
+              const networkRequests = await User.findOne({
+                id: msg.author.id,
+              });
 
-                console.log(checkTokens(addressTo, network));
-                if (checkTokens(addressTo, network) === true) {
-                  const embed = new Discord.MessageEmbed()
-                    .setColor(theme["error"])
-                    .setFooter({
-                      text: constants["footerText"],
-                    })
-                    .setDescription(
-                      `You already have enough tokens to pay the gas fees.`
-                    );
-
-                  msg.reply({ embeds: [embed] });
-                } else {
-                  const networkRequests = await User.findOne({
-                    id: msg.author.id,
-                  });
-
-                  // The faucet discord bot currently only provides a limit of 3 faucet requests per user.
-
-                  if (networkRequests[`${network}Reqs`] >= networkReqs) {
-                    const embed = new Discord.MessageEmbed()
-                      .setColor(theme["error"])
-                      .setFooter({
-                        text: constants["footerText"],
-                      })
-                      .setDescription(
-                        `You have reached the maximum amount of requests.`
-                      );
-
-                    msg.reply({ embeds: [embed] });
-                  } else {
-                    // The `priorEmbed` is just the tell the user that the request has been sent to the faucet and the transaction is being processed.
-
-                    const priorEmbed = new Discord.MessageEmbed()
-                      .setColor(theme["success"])
-                      .setFooter({
-                        text: constants["footerText"],
-                      })
-                      .setDescription(
-                        `Made a request to the faucet. Check the link to confirm whether the token has been successfully transferred or not.`
-                      );
-
-                    msg.reply({ embeds: [priorEmbed] });
-
-                    try {
-                      const signedTx = await wallet.signTransaction(tx);
-
-                      const txHash = ethers.utils.keccak256(signedTx);
-                      console.log("Precomputed txHash:", txHash);
-
-                      httpsProvider.sendTransaction(signedTx).then(console.log);
-
-                      const embed = new Discord.MessageEmbed()
-                        .setColor(theme["success"])
-                        .setFooter({
-                          text: constants["footerText"],
-                        })
-                        .setDescription(
-                          `Hey! ${network === "rinkeby" ? "0.1 ETH" : "1 MATIC"
-                          } has been sent to your account. You can view the transaction on [${network === "rinkeby" ? "EtherScan" : "PolygonScan"
-                          }](${txUrlStart(network)}/${txHash})`
-                        );
-
-                      await msg.reply({ embeds: [embed] });
-
-                      //  At the end of each successful, we would increment the value of the that network's request in the database
-
-                      User.findOneAndUpdate(
-                        { id: msg.author.id },
-                        { $inc: { [`${network}Reqs`]: "1" } },
-                        (err) => {
-                          if (err) {
-                            console.log(err);
-                            const errorEmbed = new Discord.MessageEmbed()
-                              .setColor(theme["error"])
-                              .setFooter({
-                                text: constants["footerText"],
-                              })
-                              .setDescription(
-                                `Something went wrong.\n\n \`\`\`${err}\`\`\``
-                              );
-
-                            msg.reply({ embeds: [errorEmbed] });
-                          }
-                        }
-                      );
-                    } catch (err) {
-                      console.log(err);
-                      const embed = new Discord.MessageEmbed()
-                        .setColor(theme["error"])
-                        .setFooter({
-                          text: constants["footerText"],
-                        })
-                        .setDescription(
-                          `There was an error while sending the transaction.`
-                        );
-
-                      msg.reply({ embeds: [embed] });
-                      return;
-                    }
-                  }
-                }
+              if (networkRequests[`${networkArg}Reqs`] >= networkReqs) {
+                msg.reply({ embeds: [maxReqReachedEmbed()] });
               } else {
-                if (checkTokens(addressTo, network) === true) {
-                  const embed = new Discord.MessageEmbed()
-                    .setColor(theme["error"])
-                    .setFooter({
-                      text: constants["footerText"],
-                    })
-                    .setDescription(
-                      `You already have enough tokens to pay the gas fees.`
-                    );
+                msg.reply({ embeds: [madeReqToAlchemyEmbed()] });
+                try {
 
-                  msg.reply({ embeds: [embed] });
-                } else {
-                  const networkRequests = await User.findOne({
-                    id: msg.author.id,
-                  });
+                  const signedTx = await wallet.signTransaction(tx);
 
-                  if (networkRequests[`${network}Reqs`] >= networkReqs) {
-                    const embed = new Discord.MessageEmbed()
-                      .setColor(theme["error"])
-                      .setFooter({
-                        text: constants["footerText"],
-                      })
-                      .setDescription(
-                        `You have reached the maximum amount of requests.`
-                      );
+                  const txHash = ethers.utils.keccak256(signedTx);
+                  console.log("Precomputed txHash:", txHash);
 
-                    msg.reply({ embeds: [embed] });
-                  } else {
-                    // The `priorEmbed` is just the tell the user that the request has been sent to the faucet and the transaction is being processed.
+                  httpsProvider.sendTransaction(signedTx).then(console.log);
 
-                    const priorEmbed = new Discord.MessageEmbed()
-                      .setColor(theme["success"])
-                      .setFooter({
-                        text: constants["footerText"],
-                      })
-                      .setDescription(
-                        `Made a request to the faucet. Check the link to confirm whether the token has been successfully transferred or not.`
-                      );
+                  await msg.reply({ embeds: [sentTokensEmbed(networkArg, txHash)] });
 
-                    msg.reply({ embeds: [priorEmbed] });
+                  User.findOneAndUpdate(
+                    { id: msg.author.id },
+                    { $inc: { [`${networkArg}Reqs`]: 1 } },
+                    { new: true },
+                    (err) => {
+                      if (err) {
+                        console.log(err);
+                      }
+                    });
+                } catch (err) {
+                  console.log(err);
 
-                    try {
-                      const signedTx = await wallet.signTransaction(tx);
-
-                      const txHash = ethers.utils.keccak256(signedTx);
-                      console.log("Precomputed txHash:", txHash);
-
-                      httpsProvider.sendTransaction(signedTx).then(console.log);
-
-                      const embed = new Discord.MessageEmbed()
-                        .setColor(theme["success"])
-                        .setFooter({
-                          text: constants["footerText"],
-                        })
-                        .setDescription(
-                          `Hey! ${network === "rinkeby" ? "0.1 ETH" : "1 MATIC"
-                          } has been sent to your account. You can view the transaction on [${network === "rinkeby" ? "EtherScan" : "PolygonScan"
-                          }](${txUrlStart(network)}/${txHash})`
-                        );
-
-                      await msg.reply({ embeds: [embed] });
-
-                      // At the end of each successful, we would increment the value of the that network's request in the database.
-
-                      User.findOneAndUpdate(
-                        { id: msg.author.id },
-                        { $inc: { [`${network}Reqs`]: 1 } },
-                        (err) => {
-                          if (err) {
-                            console.log(err);
-                            const errorEmbed = new Discord.MessageEmbed()
-                              .setColor(theme["error"])
-                              .setFooter({
-                                text: constants["footerText"],
-                              })
-                              .setDescription(
-                                `Something went wrong.\n\n${err}`
-                              );
-
-                            msg.reply({ embeds: [errorEmbed] });
-                          }
-                        }
-                      );
-                    } catch (err) {
-                      console.log(err);
-
-                      const embed = new Discord.MessageEmbed()
-                        .setColor(theme["error"])
-                        .setFooter({
-                          text: constants["footerText"],
-                        })
-                        .setDescription(
-                          `There was an error while sending the transaction.`
-                        );
-
-                      msg.reply({ embeds: [embed] });
-                    }
-                  }
+                  msg.reply({ embeds: [txnErrorEmbed()] });
+                  return;
                 }
               }
-            };
+            }
             init();
           }
         }
       }
     }
-  },
+  }
 });

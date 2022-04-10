@@ -12,6 +12,7 @@ module.exports = new Command({
   name: "limit",
   aliases: [],
   description: "👀 Check you faucet request limit.",
+  usage: `${process.env.PREFIX}limit`,
 
   async run(msg) {
     const response = await User.findOne({ id: msg.author.id });
@@ -21,7 +22,7 @@ module.exports = new Command({
         .setColor(theme["error"])
         .setFooter({ text: constants["footerText"] })
         .setDescription(
-          "You haven't used the faucet yet. Use the `-faucet` command to access the faucet"
+          "😿 You haven't used the faucet yet. use the `-faucet` command to access the faucet"
         );
 
       msg.reply({ embeds: [embed] });
@@ -29,7 +30,7 @@ module.exports = new Command({
       const embed = new Discord.MessageEmbed()
         .setColor(theme["success"])
         .setDescription(
-          `Here are the faucet requests limit for each network for you account:`
+          `✨ Here are the faucet requests limit for each network for you account:`
         )
         .setFooter({ text: constants["footerText"] });
 

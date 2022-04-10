@@ -9,6 +9,7 @@ module.exports = new Command({
   name: "help",
   aliases: [],
   description: "🦄 Shows the list of all the commands.",
+  usage: `${process.env.PREFIX}help`,
 
   async run(msg) {
     const embed = new Discord.MessageEmbed()
@@ -21,8 +22,8 @@ module.exports = new Command({
 
     msg.client.commands.forEach((command) => {
       embed.addField(
-        `\n\`${process.env.PREFIX}${command.name}\``,
-        `${command.description}`
+        `\n\n\`**${command.name}\`**`,
+        `${command.description}\n**Usage**: \`${command.usage}\``
       );
     });
 

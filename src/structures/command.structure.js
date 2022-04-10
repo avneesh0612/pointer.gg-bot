@@ -5,7 +5,7 @@
  * @param {Client} client
  */
 
-function RunFunction() {}
+function RunFunction() { }
 
 class Command {
   name() {
@@ -17,6 +17,9 @@ class Command {
   description() {
     return "";
   }
+  usage() {
+    return "";
+  }
   run(msg, args, client) {
     RunFunction(msg, args, client);
   }
@@ -25,6 +28,7 @@ class Command {
     this.name = options.name;
     this.aliases = options.aliases;
     this.description = options.description;
+    this.usage = options.usage;
     this.run = options.run;
   }
 }

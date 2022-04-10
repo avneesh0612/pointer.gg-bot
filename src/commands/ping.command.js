@@ -4,11 +4,12 @@ module.exports = new Command({
   name: "ping",
   aliases: [],
   description: "🏓 Shows the ping of the bot.",
+  usage: `${process.env.PREFIX}ping`,
 
   async run(msg) {
     const message = await msg.reply(`Pong: ${msg.client.ws.ping} ms!`);
     message.edit(
-      `Pong: **${msg.client.ws.ping} ms!**\nMessage Ping: **${message.createdTimestamp - msg.createdTimestamp
+      `🏓 pong: **${msg.client.ws.ping} ms!**\nmessage ping: **${message.createdTimestamp - msg.createdTimestamp
       } ms!**`
     );
   },

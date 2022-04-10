@@ -22,7 +22,7 @@ module.exports = new Command({
 
     msg.client.commands.forEach((command) => {
       embed.addField(
-        `\n\n\`**${command.name}\`**`,
+        `\n\n${command.name}`,
         `${command.description}\n**Usage**: \`${command.usage}\``
       );
     });

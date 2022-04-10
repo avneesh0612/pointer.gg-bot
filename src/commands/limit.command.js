@@ -1,8 +1,10 @@
 const Discord = require("discord.js");
 
 const Command = require("../structures/command.structure.js");
+
 const User = require("../models/user.model.js");
 const theme = require("../data/theme.data.js");
+
 const { networks, networkEmojis } = require("../data/network.data.js");
 const constants = require("../data/constants.data.js");
 

@@ -2,7 +2,9 @@ const Discord = require("discord.js");
 const ethers = require("ethers");
 
 const Command = require("../structures/command.structure.js");
-const errorEmbed = require("../lib/errorEmbed.lib.js");
+
+const errorEmbed = require("../utils/errorEmbed.utils.js");
+
 const { networks, networkAddressUrl } = require("../data/network.data.js");
 const theme = require("../data/theme.data.js");
 const constants = require("../data/constants.data.js");

@@ -1,5 +1,7 @@
 const Discord = require("discord.js");
+
 const Command = require("../structures/command.structure.js");
+
 const theme = require("../data/theme.data.js");
 const constants = require("../data/constants.data.js");
 

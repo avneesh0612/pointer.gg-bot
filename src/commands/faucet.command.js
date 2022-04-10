@@ -1,20 +1,21 @@
 const Discord = require("discord.js");
 const ethers = require("ethers");
 const dotenv = require("dotenv");
+const Web3 = require("web3");
 
 const Command = require("../structures/command.structure.js");
 const User = require("../models/user.model.js");
 
-const httpsUrl = require("../lib/httpsUrl.lib.js");
-const chainId = require("../lib/chainId.lib.js");
-const txUrlStart = require("../lib/txUrlStart.lib.js");
-const amount = require("../lib/amount.lib.js");
-const checkTokens = require("../lib/checkTokens.lib.js");
-const errorEmbed = require("../lib/errorEmbed.lib.js");
+const httpsUrl = require("../utils/httpsUrl.utils.js");
+const chainId = require("../utils/chainId.utils.js");
+const txUrlStart = require("../utils/txUrlStart.utils.js");
+const amount = require("../utils/amount.utils.js");
+const checkTokens = require("../utils/checkTokens.utils.js");
+const errorEmbed = require("../utils/errorEmbed.utils.js");
+
 const { networks, networkReqs } = require("../data/network.data.js");
 const theme = require("../data/theme.data.js");
 const constants = require("../data/constants.data.js");
-const Web3 = require("web3");
 
 dotenv.config();
 
@@ -184,10 +185,8 @@ module.exports = new Command({
                           text: constants["footerText"],
                         })
                         .setDescription(
-                          `Hey! ${
-                            network === "rinkeby" ? "0.1 ETH" : "1 MATIC"
-                          } has been sent to your account. You can view the transaction on [${
-                            network === "rinkeby" ? "EtherScan" : "PolygonScan"
+                          `Hey! ${network === "rinkeby" ? "0.1 ETH" : "1 MATIC"
+                          } has been sent to your account. You can view the transaction on [${network === "rinkeby" ? "EtherScan" : "PolygonScan"
                           }](${txUrlStart(network)}/${txHash})`
                         );
 
@@ -286,10 +285,8 @@ module.exports = new Command({
                           text: constants["footerText"],
                         })
                         .setDescription(
-                          `Hey! ${
-                            network === "rinkeby" ? "0.1 ETH" : "1 MATIC"
-                          } has been sent to your account. You can view the transaction on [${
-                            network === "rinkeby" ? "EtherScan" : "PolygonScan"
+                          `Hey! ${network === "rinkeby" ? "0.1 ETH" : "1 MATIC"
+                          } has been sent to your account. You can view the transaction on [${network === "rinkeby" ? "EtherScan" : "PolygonScan"
                           }](${txUrlStart(network)}/${txHash})`
                         );
 

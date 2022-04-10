@@ -1,5 +1,10 @@
 const networks = ["mumbai", "rinkeby"];
 
+const networkDescription = new Map([
+  ["mumbai", "Polygon mumbai is the testnet used for testing and development on the Polygon blockchain."],
+  ["rinkeby", "Rinkeby is the testnet used for testing and development on the Ethereum blockchain."],
+]);
+
 const networkAmount = new Map([
   ["mumbai", "1"],
   ["rinkeby", "0.1"],
@@ -47,5 +52,6 @@ module.exports = {
   networkReqs,
   networkEmojis,
   networkCurrency,
-  networkBlockchainExplorer
+  networkBlockchainExplorer,
+  networkDescription
 };
